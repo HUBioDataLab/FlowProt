@@ -397,7 +397,6 @@ preprocessed*/
 raw_*/
 clipped_*/
 dnmt_full/
-*_data/
 *raw*/
 *.pdb
 *preprocessed*/

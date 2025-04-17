@@ -1,0 +1,87 @@
+# Configuration for inference on SE(3) diffusion experiments.
+defaults:
+  - base
+  - _self_
+
+inference:
+
+  # Use this to write with date-time stamp.
+  name: run_${now:%Y-%m-%d}_${now:%H-%M}
+  seed: 123
+  ckpt_path: ckpt/se3-fm/dnmt-full-unconditioned/2024-09-26_00-42-38/epoch29.ckpt
+  output_dir: inference_outputs/dnmt-guided-tests-sc/
+
+  # Directories
+  pmpnn_dir: ./ProteinMPNN/
+
+  use_gpu: True
+  num_gpus: 1
+
+  interpolant:
+    min_t: 1e-2
+    rots:
+      corrupt: True
+      sample_schedule: exp
+      exp_rate: 10
+    trans:
+      corrupt: True
+      sample_schedule: linear
+    sampling:
+      num_timesteps: 100
+    self_condition: True
+
+  samples:
+
+    # Number of backbone samples per sequence length.
+    samples_per_length: 10
+
+    # Minimum sequence length to sample.
+    min_length: 60
+
+    # Maximum sequence length to sample.
+    max_length: 128
+
+    # gap between lengths to sample. i.e. this script will sample all lengths
+    # in range(min_length, max_length, length_step)
+    length_step: 1
+
+    # Subset of lengths to sample. If null, sample all targets.
+    # length_subset: [60, 80, 100, 112, 128, 196, 256, 512]
+    length_subset: [60, 80, 100, 112, 128, 196, 256, 286, 512]
+    # ESM and ProteinMPNN samples
+    seq_per_sample: 8
+
+    overwrite: False
+  
+  classifier:
+    ckpt_path: classifier_ckpt/se3-classifier/new-classifier-full/2025-02-24_01-37-28/epoch=90-step=728000.ckpt
+    node_embed_size: 128
+    edge_embed_size: 128
+    symmetric: false
+    node_features:
+      c_s: ${model.node_embed_size}
+      c_pos_emb: 128
+      c_timestep_emb: 128
+      embed_diffuse_mask: false
+      max_num_res: 2000
+      timestep_int: 1000
+    edge_features:
+      single_bias_transition_n: 2
+      c_s: ${model.node_embed_size}
+      c_p: ${model.edge_embed_size}
+      relpos_k: 64
+      use_rbf: true
+      num_rbf: 32
+      feat_dim: 64
+      num_bins: 22
+      self_condition: true
+    ipa:
+      c_s: ${model.node_embed_size}
+      c_z: ${model.edge_embed_size}
+      c_hidden: 128
+      no_heads: 4
+      no_qk_points: 4
+      no_v_points: 2
+      seq_tfmr_num_heads: 2
+      seq_tfmr_num_layers: 1
+      num_blocks: 2
