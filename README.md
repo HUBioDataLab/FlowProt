@@ -42,7 +42,7 @@ Work in progress..
 
 ## 📊 Results Summary
 
-| Sequence Length | scRMSD ↓ | scTM ↑ | pLDDT ↑ | ProGReS ↑ |
+| Sequence Length | scRMSD ↓ | scTM ↑ | pLDDT ↑ | progres ↑ |
 |------------------|----------|--------|----------|------------|
 | 286 (DNMT3A)     | 3.10     | 0.86   | 83.12    | 0.53       |
 
