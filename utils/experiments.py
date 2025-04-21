@@ -3,7 +3,7 @@ import numpy as np
 import os
 import re
 from dataset import protein
-from openfold_utils import rigid_utils
+from openfold.utils import rigid_utils
 import logging
 from torch.utils.data import Dataset
 

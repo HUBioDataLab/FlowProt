@@ -17,7 +17,7 @@ import tree
 from omegaconf import DictConfig
 import pandas as pd
 
-from openfold_data import data_transforms
+from openfold.data import data_transforms
 import utils.openfold_rigid_utils as rigid_utils
 
 from utils.pdbUtils import read_pkl, parse_chain_feats

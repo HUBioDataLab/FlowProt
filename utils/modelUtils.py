@@ -1,7 +1,7 @@
 import math
 import torch
 from torch.nn import functional as F
-from openfold_utils import rigid_utils as ru
+from openfold.utils import rigid_utils as ru
 from dataset import protein
 import numpy as np
 from torch_scatter import scatter_add, scatter

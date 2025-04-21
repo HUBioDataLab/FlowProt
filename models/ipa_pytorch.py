@@ -21,7 +21,7 @@ import math
 from scipy.stats import truncnorm
 import torch.nn as nn
 from typing import Optional, Callable, List, Sequence
-from openfold_utils.rigid_utils import Rigid
+from openfold.utils.rigid_utils import Rigid
 from dataset import all_atom
 
 

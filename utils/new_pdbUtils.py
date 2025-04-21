@@ -4,7 +4,7 @@ import pickle
 from typing import Optional, Any, List, Dict
 from Bio.PDB import PDBParser
 from Bio.PDB.Chain import Chain
-from openfold_utils import rigid_utils
+from openfold.utils import rigid_utils
 import torch
 import string
 from torch.utils import data

@@ -6,7 +6,7 @@ import tree
 
 from utils import new_pdbUtils as du
 from utils import experiments as eu
-from openfold_np import residue_constants
+from openfold.np import residue_constants
 from tmtools import tm_align
 
 CA_IDX = residue_constants.atom_order['CA']
