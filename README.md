@@ -1,5 +1,5 @@
 
-# 🧬 FlowProt
+# FlowProt
 
 **FlowProt: Classifier-Guided Flow Matching for Targeted Protein Backbone Generation in the de
 novo DNA Methyltransfarase Family**
@@ -10,11 +10,11 @@ novo DNA Methyltransfarase Family**
 
 ---
 
-## 🚀 Overview
+## Overview
 
 **FlowProt** is a flow-matching generative model guided by a domain classifier for the **targeted generation of protein backbones**, demonstrated on the **de novo DNA methyltransferase (DNMT) family**.
 
-> 🧪 FlowProt is a **method combining flow matching with classifier guidance** for functional protein design.
+> FlowProt is a **method combining flow matching with classifier guidance** for functional protein design.
 
 - Generates **structurally stable and functionally targeted** protein backbones
 - Guided using classifier feedback to focus on **DNMT-like** domains
@@ -22,12 +22,12 @@ novo DNA Methyltransfarase Family**
 
 ---
 
-## 📦 Repository Structure
+## Repository Structure
 Work in progress..
 
 ---
 
-## 🧠 Method Summary
+## Method Summary
 
 <p align="center">
   <img src="figures/inference_diagram.png" width="600">
@@ -40,36 +40,36 @@ Work in progress..
 
 ---
 
-## 📊 Results Summary
+## Results Summary
 
 | Sequence Length | scRMSD ↓ | scTM ↑ | pLDDT ↑ | progres ↑ |
 |------------------|----------|--------|----------|------------|
 | 286 (DNMT3A)     | 3.10     | 0.86   | 83.12    | 0.53       |
 
-> 🎯 FlowProt performs best in the mid-length range and excels at 286 residues—the exact length of human DNMT3A.
+> FlowProt performs best in the mid-length range and excels at 286 residues—the exact length of human DNMT3A.
 
 ---
 
-## 🔧 Installation
+## Installation
 
 Work in progress...
 
 ---
 
-## 📈 Training & Inference
+## Training & Inference
 
 Work in progress...
 
 ---
 
-## 📬 Contact
+## Contact
 
 Feel free to open an issue or reach out:  
 📧 alibaran [at] tasdemir.us
 
 ---
 
-## 🧪 Acknowledgements
+## Acknowledgements
 
 - FrameFlow (Yim et al. 2023)  
 - ESMFold, ProteinMPNN, and progres authors
