@@ -111,7 +111,7 @@ inference_name/
           │   │   ├── esmf # ESMFold predictions using ProteinMPNN sequences.
           │   │   │   ├── sample_0.pdb
           │   │   │   ├── ....
-              │   │   ├── parsed_pdbs.jsonl # Parsed chains for ProteinMPNN
+          │   │   │   ├── parsed_pdbs.jsonl # Parsed chains for ProteinMPNN
           │   │   ├── sample.pdb
           │   │   ├── sc_results.csv # Self consistency summary metrics CSV
           │   │   └── seqs
@@ -122,7 +122,60 @@ inference_name/
 
 ## Training
 
-Work in progress...
+To train the model, you can download (will be available soon [TODO]) our preprocessed dataset. Or you can download and use raw PDB files. 
+
+### Training with the preprocessed dataset
+
+If you download our preprocessed dataset, we will also provide a ```metadata.csv``` file. This file stores some statistical features with file paths to help with IO operations. Note that this file assumes pickled data locations and it may need some fixing on the data paths for your settings.
+
+### Training with raw PDB files
+
+Raw PDB files needs a preprocessing step before training. The preprocessing is done by ```dataset/process_pdb_files.py```. This helper script, preprocesses the raw PDB data into the pickled form.
+
+The training of the model is also controlled by using hydra. The configuration file of the training can be set by ```configs/base.yaml```. 
+
+```yaml
+data:
+  dataset:
+    seed: 9
+    max_num_res: 512 # Max number of residues allowed in samples
+    min_num_res: 0 # Max number of residues allowed in samples
+    samples_per_eval_length: 5
+    csv_path: data/metadata.csv # Metadata path
+experiment:
+  seed: 123
+  wandb: # Connection to wandb
+    name: experiment-name
+    project: project-name
+trainer:
+  max_epochs: 300 # Maximum number of epochs
+  log_every_n_steps: 1
+checkpointer:
+  dirpath: ckpt/${experiment.wandb.project}/${experiment.wandb.name} # Checkpoint dir
+  save_last: true # Flag value to save model on last epoch
+  save_top_k: 3 # Checkpoint best 3 model weights
+  monitor: valid/non_coil_percent # Set monitor metric
+  mode: max
+```
+
+Then the model is trained by ```train.py``` with the following command;
+
+```bash
+python train.py
+```
+
+this command will automatically detect the ```base.yaml``` file and apply configurations to the training.  
+
+The training can be monitored via wandb with the given settings in the configuration file. During/after the training, outputs will be written in the path given with ```checkpointer.dirpath```. The checkpoint folder will have the following structure;
+
+```bash
+checkpoint_dir/
+      ├── config.yaml # The training config file for the run.
+      ├── last.ckpt # Model weights from the last step.
+      ├── epoch={}-step={}.ckpt # Top n checkpoints.
+      ├── ...
+      └── sample.pdb # Validation samples. (can be more than one)
+```
 
 ---
 

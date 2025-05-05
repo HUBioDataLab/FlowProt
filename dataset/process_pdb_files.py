@@ -37,9 +37,24 @@ parser.add_argument(
     '--verbose',
     help='Whether to log everything.',
     action='store_true')
+parser.add_argument(
+    '--remove_file',
+    help='Remove the processed PDB files.',
+    action='store_true'
+)
+parser.add_argument(
+    '--max_len',
+    help='Max length of protein.',
+    type=int,
+    default=512)
+parser.add_argument(
+    '--class',
+    help='If the files has class information.',
+    action='store_true'
+)
 
 
-def process_file(file_path: str, write_dir: str):
+def process_file(file_path: str, write_dir: str, remove_file: bool, max_len: int):
     """Processes protein file into usable, smaller pickles.
 
     Args:
@@ -54,13 +69,22 @@ def process_file(file_path: str, write_dir: str):
         All other errors are unexpected and are propogated.
     """
     metadata = {}
-    pdb_name = os.path.basename(file_path).replace('.pdb', '')
+    
+    basefname = os.path.basename(file_path).replace('.pdb', '')
+    #TODO
+    # Add class parameter
+    pdb_name, className = basefname.split('_')[1], basefname.split('_')[0]
+    # pdb_name = basefname
+    # className = 'neg'
+    
+    # pdb_name = os.path.basename(file_path).replace('.pdb', '')
     metadata['pdb_name'] = pdb_name
 
     processed_path = os.path.join(write_dir, f'{pdb_name}.pkl')
     metadata['processed_path'] = os.path.abspath(processed_path)
     metadata['raw_path'] = file_path
     parser = PDB.PDBParser(QUIET=True)
+    # print(pdb_name)
     structure = parser.get_structure(pdb_name, file_path)
 
     # Extract all chains
@@ -92,6 +116,9 @@ def process_file(file_path: str, write_dir: str):
     modeled_idx = np.where(complex_aatype != 20)[0]
     if np.sum(complex_aatype != 20) == 0:
         raise errors.LengthError('No modeled residues')
+    if complex_aatype.shape[0] > max_len:
+        raise errors.LengthError(
+            f'Too long {complex_aatype.shape[0]}')
     min_modeled_idx = np.min(modeled_idx)
     max_modeled_idx = np.max(modeled_idx)
     metadata['modeled_seq_len'] = max_modeled_idx - min_modeled_idx + 1
@@ -104,9 +131,11 @@ def process_file(file_path: str, write_dir: str):
         pdb_ss = md.compute_dssp(traj, simplified=True)
         # DG calculation
         pdb_dg = md.compute_rg(traj)
-        os.remove(file_path)
+        if remove_file:
+            os.remove(file_path)
     except Exception as e:
-        os.remove(file_path)
+        if remove_file:
+            os.remove(file_path)
         raise errors.DataError(f'Mdtraj failed with error {e}')
 
     chain_dict['ss'] = pdb_ss[0]
@@ -116,6 +145,9 @@ def process_file(file_path: str, write_dir: str):
 
     # Radius of gyration
     metadata['radius_gyration'] = pdb_dg[0]
+    
+    # Write class info
+    metadata['class'] = 0 if className == "neg" else 1
 
     # Write features to pickles.
     write_pkl(processed_path, complex_feats)
@@ -124,14 +156,16 @@ def process_file(file_path: str, write_dir: str):
     return metadata
 
 
-def process_serially(all_paths, write_dir):
+def process_serially(all_paths, write_dir, remove_file, max_len):
     all_metadata = []
     for i, file_path in enumerate(all_paths):
         try:
             start_time = time.time()
             metadata = process_file(
                 file_path,
-                write_dir)
+                write_dir,
+                remove_file,
+                max_len)
             elapsed_time = time.time() - start_time
             print(f'Finished {file_path} in {elapsed_time:2.2f}s')
             all_metadata.append(metadata)
@@ -143,12 +177,16 @@ def process_serially(all_paths, write_dir):
 def process_fn(
         file_path,
         verbose=None,
-        write_dir=None):
+        write_dir=None,
+        remove_file=True,
+        max_len=512):
     try:
         start_time = time.time()
         metadata = process_file(
             file_path,
-            write_dir)
+            write_dir,
+            remove_file,
+            max_len)
         elapsed_time = time.time() - start_time
         if verbose:
             print(f'Finished {file_path} in {elapsed_time:2.2f}s')
@@ -178,12 +216,16 @@ def main(args):
     if args.num_processes == 1 or args.debug:
         all_metadata = process_serially(
             all_file_paths,
-            write_dir)
+            write_dir,
+            args.remove_file,
+            args.max_len)
     else:
         _process_fn = fn.partial(
             process_fn,
             verbose=args.verbose,
-            write_dir=write_dir)
+            write_dir=write_dir,
+            remove_file=args.remove_file,
+            max_len=args.max_len)
         with mp.Pool(processes=args.num_processes) as pool:
             all_metadata = pool.map(_process_fn, all_file_paths)
         all_metadata = [x for x in all_metadata if x is not None]
