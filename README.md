@@ -55,10 +55,11 @@ To our knowledge, FlowProt is the first method to integrate flow-matching with c
 
 ---
 
-## Repository Structure
-Work in progress..
+<!--## Repository Structure
+<>Work in progress..
 
 ---
+-->
 
 ## Installation
 Set up conda environment.
@@ -72,8 +73,54 @@ conda activate flowprot
 ```
 
 ---
+## Inference
 
-## Training & Inference
+This project uses Hydra for configuration that allows easy and flexible command-line settings. In ```configs/inference.yaml``` you can find the configurations for the inference. 
+
+```yaml
+inference:
+  name: run_${now:%Y-%m-%d}_${now:%H-%M} # Default name (date-time stamp)
+  seed: 123
+  ckpt_path: ckpt/flowprot.ckpt # Checkpoint path of the model.
+  output_dir: inference_outputs/dnmt-guided-tests-sc/ # Your output directory.
+
+  pmpnn_dir: ./ProteinMPNN/ # ProteinMPNN directory
+
+classifier:
+    ckpt_path: classifier_ckpt/classifier.ckpt # Classifier checpoint for guidance.
+```
+
+After specified the path to the checkpoints and folders, inference can be started by using the following command.
+
+```bash
+python inference.py
+```
+
+this command will automatically detect ```configs/inference.yaml``` file and use configurations from that file.
+
+During the inference, we also evaluate samples from FlowProt using ProteinMPNN and ESMFold. By using the same inference procedure as [SE(3) diffusion model with application to protein backbone generation](https://github.com/jasonkyuyim/se3_diffusion), we store the results in the following structure;
+
+```bash
+inference_name/
+      └── length_60 # Length of the sample.
+          ├── sample_0 # Sample id from FlowProt.
+          │   ├── bb_traj.pdb # x_{t-1} flow trajectory.
+          │   ├── sample.pdb # Sample at the final step.
+          │   ├── x0_traj.pdb # x_0 model prediction trajectory
+          │   ├── self_consistency # Self consistency results.
+          │   │   ├── esmf # ESMFold predictions using ProteinMPNN sequences.
+          │   │   │   ├── sample_0.pdb
+          │   │   │   ├── ....
+              │   │   ├── parsed_pdbs.jsonl # Parsed chains for ProteinMPNN
+          │   │   ├── sample.pdb
+          │   │   ├── sc_results.csv # Self consistency summary metrics CSV
+          │   │   └── seqs
+          │           └── sample.fa # ProteinMPNN sequences
+          └── sample_1
+```
+
+
+## Training
 
 Work in progress...
 
